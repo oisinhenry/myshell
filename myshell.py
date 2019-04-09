@@ -12,7 +12,7 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
     def do_quit(self, args):        # first few simple commands. each command needs an 'args' parameter
         print("Bye")                # even if it's not used, otherwise errors are thrown.
         return True
-
+# random comment to test some git stuff
     def help_quit(self):
         print("Exit the application.")
 
