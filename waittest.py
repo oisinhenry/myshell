@@ -1,4 +1,6 @@
 import time
+import sys
+time.sleep(2)
+print("hello world", end="")
+sys.exit(0)
 
-time.sleep(4)
-print("hello world")

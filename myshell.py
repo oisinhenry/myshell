@@ -144,32 +144,41 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
     def do_pwd(self, key):        # testing command for the PWD environment string update.
         print(os.environ["PWD"])
 
-    def default(self, command):      # method called when command prefix not recognised (ie program invocation)
-        # TODO: implement forking process here for program invocation
-        # TODO: logic for error if command isn't an actual Linux command
-        # print("default response test")
-        # opener = "open" if sys.platform == "darwin" else "xdg-open"
-        # subprocess.call([opener, line])
+    def emptyline(self):
+        pass
+
+    def default(self, command):
+
+        # method called when command prefix not recognised (ie program invocation).
+        # background processing handled here.
+        # TODO: this seems to be working but doesn't newline the shell with a fresh prompt.
+        # this seems to just be regular Linux behaviour when tested with a python script.
         if "&" in command:
             try:
                 child = os.fork()
                 if child == 0:
+                    os.system(command[:-2])
+                    sys.exit(0)
+
+                else:
                     return
-                else:                       # logic for forking background processes.
-                                            # can currently either get this to not error and lag the shell,
-                                            # or just error.
+
+
                     # null = open('/dev/null', 'a+')
                     # os.dup2(null, sys.stdin)
-                    os.system(command[:-2])
-                    os._exit(0)
-            except:
-                print("Command not recognised internally or by Linux shell.")
-                print(command[:-2])
+                    # os.system(command[:-2])
+                    # os._exit(0)
+            except Exception as e:
+                print(e)
+                # print("Command not recognised internally or by Linux shell.")
+                # print(command[:-2])
         else:
             try:
                 os.system(command)
             except:
                 print("Command not recognised internally or by Linux shell.")
+
+
 
     def do_testargs(self, args):
         for arg in args.split():
