@@ -93,11 +93,23 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
     def do_pwd(self, key):        # testing command for the PWD environment string update.
         print(os.environ["PWD"])
 
-    def default(self, line):      # method called when command prefix not recognised (ie program invocation)
+    def default(self, command):      # method called when command prefix not recognised (ie program invocation)
         # TODO: implement forking process here for program invocation
-        print("default response test")
-        opener = "open" if sys.platform == "darwin" else "xdg-open"
-        subprocess.call([opener, line])
+        # TODO: logic for error if command isn't an actual Linux command
+        # print("default response test")
+        # opener = "open" if sys.platform == "darwin" else "xdg-open"
+        # subprocess.call([opener, line])
+        if "&" in command:
+            try:
+                os.system(command[:-2])
+            except:
+                print("Command not recognised internally or by Linux shell.")
+                print(command[:-2])
+        else:
+            try:
+                os.system(command)
+            except:
+                print("Command not recognised internally or by Linux shell.")
 
     def do_testargs(self, args):
         for arg in args.split():
@@ -130,7 +142,7 @@ if __name__ == '__main__':      # main function where prompt is created and run
 
     else:                                   # else just prompt user for input.
         prompt.prompt = BOLD + BLUE + "~" + full_path + ENDC + ":" + BLUE + "~" + ENDC + "$ "
-        prompt.cmdloop(HEADER + "Starting prompt. Type ? to list commands.")
+        prompt.cmdloop(HEADER + "Starting prompt. Type '?' or 'help' for commands.")
 
 
 

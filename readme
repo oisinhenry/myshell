@@ -9,7 +9,7 @@
              __/ |
             |___/
 
-Welcome to oisinhenry/myshell
+\e[BWelcome to oisinhenry/myshell\e[0m
 A simple shell written in python.
 
 COMMANDS
