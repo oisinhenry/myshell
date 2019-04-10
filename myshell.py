@@ -7,7 +7,18 @@ import sys
 class myPrompt(Cmd):                # main class for the prompt. inherits from cmd.Cmd
 
     def do_help(self, args):        # TODO: output redirection
-        os.system("more readme")
+        if "> " in args:
+            tokens = args.split(">")
+            f = open(tokens[1], "w")
+            readfile = open("readme", "r")
+            f.write(readfile.read())
+        elif ">> " in args:
+            tokens = args.split(">>")
+            f = open(tokens[1], "a")
+            readfile = open("readme", "r")
+            f.write(readfile.read())
+        else:
+            os.system("more readme")
 
     def do_quit(self, args):        # first few simple commands. each command needs an 'args' parameter
         print("Bye")                # even if it's not used, otherwise errors are thrown.
