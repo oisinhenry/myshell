@@ -7,7 +7,7 @@ This repo is for personal version control of my CA216 shell assignment.
 * ~~Output redirection for the internal commands `dir environ echo help`~~
 * ~~Write~~ Finish/clean up user manual
 * ~~Return user manual when `help` command is entered with no arguments.~~
-* Refactor into multiple python files / generally clean up code. (DO THIS)
 * Implement better `pause` command. (Currently errors on keyboard interrupt).
 * Implement better `clr` command without using system calls.
-* Fix background execution of commands in the `default` method.
+* ~~Fix background execution of commands in the `default` method.~~ I think (really hope) this is working. Fingers crossed.
+* **Refactor into multiple python files / generally clean up code.** This is now basically priority number one as most of the other functionality is complete.
