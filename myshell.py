@@ -7,14 +7,16 @@ import sys
 class myPrompt(Cmd):                # main class for the prompt. inherits from cmd.Cmd
 
     def do_help(self, args):        # TODO: output redirection
-        if "> " in args:
-            tokens = args.split(">")
-            f = open(tokens[1], "w")
+        if args.startswith("> "):
+            # print("help overwitten file")
+            tokens = args.split()
+            f = open(tokens[1].strip(), "w")
             readfile = open("readme", "r")
             f.write(readfile.read())
-        elif ">> " in args:
-            tokens = args.split(">>")
-            f = open(tokens[1], "a")
+        elif args.startswith(">>"):
+            # print("help appended to file")
+            tokens = args.split()
+            f = open(tokens[1].strip(), "a")
             readfile = open("readme", "r")
             f.write(readfile.read())
         else:
@@ -30,11 +32,11 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
     def do_echo(self, s):
         if " > " in s:                  # logic to check if i/o redirection is invoked. I was going to put this
             tokens = s.split(">")       # in a separate function and just call it in each command, but it was
-            f = open(tokens[1], "w")    # awkward as the logic works differently for some commands, e.g. echo and dir.
+            f = open(tokens[1].strip(), "w")    # awkward as the logic works differently for some commands, e.g. echo and dir.
             f.write(tokens[0])          # it's slightly cumbersome having it live here, but it's the best solution I
         elif " >> " in s:               # have right now.
             tokens = s.split(">>")
-            f = open(tokens[1], "a")
+            f = open(tokens[1].strip(), "a")
             f.write(tokens[0])
         else:
             print(s)
@@ -69,9 +71,47 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
         print("Clears the terminal.")
 
     def do_dir(self, args):         # TODO: output redirection
-        contents = os.listdir(full_path + "/" + args)
-        for key in contents:
-            print(key)
+        # logic is cumbersome here because of multiple cases. 4 possibilities between argument/no argument
+        # and ">" or ">>".
+        if " > " in args and len(args.split()) == 3:          # case of dir somedir > somefile.txt
+            tokens = args.split(" > ")
+            f = open(tokens[1].strip(), "w")
+            files = os.listdir(os.environ['PWD'] + "/" + tokens[0])
+            for key in files:
+                f.write(key + "\n")
+            # print("given dir overwritten file")
+
+        elif " >> " in args and len(args.split()) == 3:       # case of dir somedir >> somefile.txt
+            tokens = args.split(" >> ")
+            f = open(tokens[1].strip(), "a")
+            files = os.listdir(os.environ['PWD'] + "/" + tokens[0])
+            for key in files:
+                f.write(key + "\n")
+            # print("given dir appended to file")
+
+        elif args.startswith("> "):        # case of dir > somefile.txt (i.e. current dir)
+            tokens = args.split()
+            f = open(tokens[1].strip(), "w")
+            files = os.listdir(os.environ['PWD'])
+            for key in files:
+                f.write(key + "\n")
+            # print("current dir overwritten file")
+
+        elif args.startswith(">>"):       # case of dir >> somefile.txt
+            tokens = args.split()
+            f = open(tokens[1].strip(), "a")
+            files = os.listdir(os.environ['PWD'])
+            for key in files:
+                f.write(key + "\n")
+            # print("current dir appended to file")
+
+        else:
+            contents = os.listdir(os.environ['PWD'] + "/" + args)
+            for key in contents:
+                print(key)
+            # print("hit the else!")
+            # print(args)
+            # print(len(args.split()))
 
     def help_dir(self):
         print("Lists the contents of a given directory. If no arguments are supplied, current directory is used.")
@@ -153,7 +193,7 @@ if __name__ == '__main__':      # main function where prompt is created and run
 
     else:                                   # else just prompt user for input.
         prompt.prompt = BOLD + BLUE + "~" + full_path + ENDC + ":" + BLUE + "~" + ENDC + "$ "
-        prompt.cmdloop(HEADER + "Starting prompt. Type '?' or 'help' for commands.")
+        prompt.cmdloop(HEADER + "Starting prompt. Type '?' or 'help' for commands. Type 'help <command>' for help with a specific command.")
 
 
 
