@@ -152,7 +152,16 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
         # subprocess.call([opener, line])
         if "&" in command:
             try:
-                os.system(command[:-2])
+                child = os.fork()
+                if child == 0:
+                    return
+                else:                       # logic for forking background processes.
+                                            # can currently either get this to not error and lag the shell,
+                                            # or just error.
+                    # null = open('/dev/null', 'a+')
+                    # os.dup2(null, sys.stdin)
+                    os.system(command[:-2])
+                    os._exit(0)
             except:
                 print("Command not recognised internally or by Linux shell.")
                 print(command[:-2])
@@ -192,7 +201,7 @@ if __name__ == '__main__':      # main function where prompt is created and run
                 prompt.onecmd(line)
 
     else:                                   # else just prompt user for input.
-        prompt.prompt = BOLD + BLUE + "~" + full_path + ENDC + ":" + BLUE + "~" + ENDC + "$ "
+        prompt.prompt = BOLD + BLUE + "~" + full_path + ENDC + ":" + BLUE + "~myshell" + ENDC + "$ "
         prompt.cmdloop(HEADER + "Starting prompt. Type '?' or 'help' for commands. Type 'help <command>' for help with a specific command.")
 
 
