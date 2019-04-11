@@ -13,27 +13,30 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
             f = open(tokens[1].strip(), "w")
             readfile = open("readme", "r")
             f.write(readfile.read())
+
         elif args.startswith(">>"):
             # print("help appended to file")
             tokens = args.split()
             f = open(tokens[1].strip(), "a")
             readfile = open("readme", "r")
             f.write(readfile.read())
+
         else:
             os.system("more readme")
 
     def do_quit(self, args):        # first few simple commands. each command needs an 'args' parameter
         print("Bye")                # even if it's not used, otherwise errors are thrown.
         return True
-# random comment to test some git stuff
+
     def help_quit(self):
         print("Exit the application.")
 
     def do_echo(self, s):
         if " > " in s:                  # logic to check if i/o redirection is invoked. I was going to put this
             tokens = s.split(">")       # in a separate function and just call it in each command, but it was
-            f = open(tokens[1].strip(), "w")    # awkward as the logic works differently for some commands, e.g. echo and dir.
+            f = open(tokens[1].strip(), "w")    # awkward as the logic works differently for each command.
             f.write(tokens[0])          # it's slightly cumbersome having it live here, but it's the best solution I
+
         elif " >> " in s:               # have right now.
             tokens = s.split(">>")
             f = open(tokens[1].strip(), "a")
@@ -53,6 +56,7 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
                 prompt.prompt = BOLD + BLUE + "~" + full_path + ENDC + ":" + BLUE + "~" + ENDC + "$ "
                 # this just updates the prompt prefix on screen.
                 # these variables are just global colour codes for terminal.
+
             except:             # very broad except but only one type of error will ever occur here
                 print("Directory " + "'" + d + "'" + " does not exist in this location. Do 'help cd' for help.")
 
@@ -64,15 +68,16 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
         print("Usage: cd <directory>")
 
     def do_clr(self, args):
-        clear = lambda: os.system("clear")
-        clear()
+        # clear = lambda: os.system("clear")
+        # clear()
+        sys.stderr.write("\x1b[2J\x1b[H")
 
     def help_clr(self):
         print("Clears the terminal.")
 
     def do_dir(self, args):         # TODO: output redirection
         # logic is cumbersome here because of multiple cases. 4 possibilities between argument/no argument
-        # and ">" or ">>".
+        # and ">" or ">>".  #TODO: make this live in another file/function?
         if " > " in args and len(args.split()) == 3:          # case of dir somedir > somefile.txt
             tokens = args.split(" > ")
             f = open(tokens[1].strip(), "w")
@@ -118,7 +123,10 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
         print("Usage: dir <directory>")
 
     def do_pause(self, args):
-        input("Press Enter to continue...")     # rudimentary but functional pause.
+        try:
+            input("Press Enter to continue...")     # rudimentary but functional pause.
+        except:
+            pass
 
     def help_pause(self):
         print("Pauses the shell and waits for user input.")
@@ -129,11 +137,13 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
             f = open(tokens[1], "w")    # whether i/o redirection is invoked.
             for key in os.environ:
                 f.write(key + "\n")
+
         elif ">> " in args:
             tokens = args.split()
             f = open(tokens[1], "a")
             for key in os.environ:
                 f.write(key + "\n")
+
         else:
             for l in os.environ:
                 print(l)
@@ -155,14 +165,13 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
         # this seems to just be regular Linux behaviour when tested with a python script.
         if "&" in command:
             try:
-                child = os.fork()
-                if child == 0:
+                pid = os.fork()
+                if pid == 0:
                     os.system(command[:-2])
                     sys.exit(0)
 
                 else:
                     return
-
 
                     # null = open('/dev/null', 'a+')
                     # os.dup2(null, sys.stdin)
@@ -175,10 +184,9 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
         else:
             try:
                 os.system(command)
+
             except:
                 print("Command not recognised internally or by Linux shell.")
-
-
 
     def do_testargs(self, args):
         for arg in args.split():

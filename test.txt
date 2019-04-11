@@ -1,5 +1,0 @@
-echo "batch file test success"
-cd
-cd venv
-cd
-dir
