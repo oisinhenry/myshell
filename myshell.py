@@ -6,22 +6,21 @@ import sys
 
 class myPrompt(Cmd):                # main class for the prompt. inherits from cmd.Cmd
 
-    def do_help(self, args):        # TODO: output redirection
-        if args.startswith("> "):
-            # print("help overwitten file")
+    def do_help(self, args):
+
+        if args.startswith("> "):   # help invoked with overwrite redirection.
             tokens = args.split()
             f = open(tokens[1].strip(), "w")
             readfile = open("readme", "r")
             f.write(readfile.read())
 
-        elif args.startswith(">>"):
-            # print("help appended to file")
+        elif args.startswith(">>"):  # help invoked with append redirection.
             tokens = args.split()
             f = open(tokens[1].strip(), "a")
             readfile = open("readme", "r")
             f.write(readfile.read())
 
-        else:
+        else:                        # help invoked without redirection.
             os.system("more readme")
 
     def do_quit(self, args):        # first few simple commands. each command needs an 'args' parameter
@@ -32,35 +31,37 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
         print("Exit the application.")
 
     def do_echo(self, s):
-        if " > " in s:                  # logic to check if i/o redirection is invoked. I was going to put this
-            tokens = s.split(">")       # in a separate function and just call it in each command, but it was
-            f = open(tokens[1].strip(), "w")    # awkward as the logic works differently for each command.
-            f.write(tokens[0])          # it's slightly cumbersome having it live here, but it's the best solution I
 
-        elif " >> " in s:               # have right now.
+        if " > " in s:     # echo invoked with overwrite redirection.
+            tokens = s.split(">")
+            f = open(tokens[1].strip(), "w")
+            f.write(tokens[0])
+
+        elif " >> " in s:  # echo invoked with append redirection.
             tokens = s.split(">>")
             f = open(tokens[1].strip(), "a")
             f.write(tokens[0])
-        else:
+
+        else:               # echo invoked without redirection.
             print(s)
 
-    def help_echo(self):                # slightly cumbersome having the help commands interspersed with the do commands
-        print("Return a given string. Usage: echo <string>")    # i may move them around for readability later.
+    def help_echo(self):
+        print("Return a given string. Usage: echo <string>")
 
     def do_cd(self, d=""):
-        if d != "":
+        if d != "":         # directory supplied as an argument.
             try:
                 os.chdir(d)
                 full_path = os.getcwd()
                 os.environ["PWD"] = os.getcwd()     # update PWD env variable
                 prompt.prompt = BOLD + BLUE + "~" + full_path + ENDC + ":" + BLUE + "~" + ENDC + "$ "
                 # this just updates the prompt prefix on screen.
-                # these variables are just global colour codes for terminal.
+                # ALL CAPS variables are just global colour codes for terminal.
 
-            except:             # very broad except but only one type of error will ever occur here
+            except:
                 print("Directory " + "'" + d + "'" + " does not exist in this location. Do 'help cd' for help.")
 
-        else:
+        else:               # no arguments supplied. use current dir.
             print(os.getcwd())
 
     def help_cd(self):
@@ -68,23 +69,21 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
         print("Usage: cd <directory>")
 
     def do_clr(self, args):
-        # clear = lambda: os.system("clear")
-        # clear()
-        sys.stderr.write("\x1b[2J\x1b[H")
+        sys.stderr.write("\x1b[2J\x1b[H")   # linux escape sequence to clear the terminal.
 
     def help_clr(self):
         print("Clears the terminal.")
 
-    def do_dir(self, args):         # TODO: output redirection
+    def do_dir(self, args):
         # logic is cumbersome here because of multiple cases. 4 possibilities between argument/no argument
-        # and ">" or ">>".  #TODO: make this live in another file/function?
+        # and ">" or ">>".
+        # #TODO: make this live in another file/function?
         if " > " in args and len(args.split()) == 3:          # case of dir somedir > somefile.txt
             tokens = args.split(" > ")
             f = open(tokens[1].strip(), "w")
             files = os.listdir(os.environ['PWD'] + "/" + tokens[0])
             for key in files:
                 f.write(key + "\n")
-            # print("given dir overwritten file")
 
         elif " >> " in args and len(args.split()) == 3:       # case of dir somedir >> somefile.txt
             tokens = args.split(" >> ")
@@ -92,7 +91,6 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
             files = os.listdir(os.environ['PWD'] + "/" + tokens[0])
             for key in files:
                 f.write(key + "\n")
-            # print("given dir appended to file")
 
         elif args.startswith("> "):        # case of dir > somefile.txt (i.e. current dir)
             tokens = args.split()
@@ -100,7 +98,6 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
             files = os.listdir(os.environ['PWD'])
             for key in files:
                 f.write(key + "\n")
-            # print("current dir overwritten file")
 
         elif args.startswith(">>"):       # case of dir >> somefile.txt
             tokens = args.split()
@@ -108,15 +105,11 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
             files = os.listdir(os.environ['PWD'])
             for key in files:
                 f.write(key + "\n")
-            # print("current dir appended to file")
 
         else:
             contents = os.listdir(os.environ['PWD'] + "/" + args)
             for key in contents:
                 print(key)
-            # print("hit the else!")
-            # print(args)
-            # print(len(args.split()))
 
     def help_dir(self):
         print("Lists the contents of a given directory. If no arguments are supplied, current directory is used.")
@@ -132,68 +125,59 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
         print("Pauses the shell and waits for user input.")
 
     def do_environ(self, args):
-        if "> " in args:
-            tokens = args.split()       # similar (but unfortunately slightly different) logic to check
-            f = open(tokens[1], "w")    # whether i/o redirection is invoked.
+        # unfortunately, different logic needed for
+        # each internal command when redirection is invoked.
+
+        if "> " in args:            # overwrite redirection invoked.
+            tokens = args.split()
+            f = open(tokens[1], "w")
             for key in os.environ:
                 f.write(key + "\n")
 
-        elif ">> " in args:
+        elif ">> " in args:         # append redirection invoked.
             tokens = args.split()
             f = open(tokens[1], "a")
             for key in os.environ:
                 f.write(key + "\n")
 
-        else:
+        else:                       # no redirection invoked.
             for l in os.environ:
                 print(l)
 
     def help_environ(self):
         print("Lists all the environment variables.")
 
-    def do_pwd(self, key):        # testing command for the PWD environment string update.
-        print(os.environ["PWD"])
-
     def emptyline(self):
         pass
 
-    def default(self, command):
+    def default(self, command):  # method called when command prefix not recognised (ie program invocation)
 
-        # method called when command prefix not recognised (ie program invocation).
-        # background processing handled here.
-        # TODO: this seems to be working but doesn't newline the shell with a fresh prompt.
-        # this seems to just be regular Linux behaviour when tested with a python script.
-        if "&" in command:
-            try:
-                pid = os.fork()
-                if pid == 0:
-                    os.system(command[:-2])
-                    sys.exit(0)
+        if "&" in command:       # background execution is handled here with os.fork.
+            try:                 # When tested with a python script, it terminates with an empty line
+                        # (i.e, no visible prompt.) however, this seems to just be linux behaviour
+                        # (the system shell acts the same way) and the prompt loop keeps working fine.
+                        # you can enter a command on the empty line as normal or just hit enter to bring back
+                        # the visible prompt.
 
-                else:
-                    return
+                pid = os.fork()     # fork a new child process.
+                if pid == 0:        # we are in the child process.
+                    os.system(command[:-2])     # execute the command (less the "&").
+                    sys.exit(0)                 # exit the child process with status 0 (success).
 
-                    # null = open('/dev/null', 'a+')
-                    # os.dup2(null, sys.stdin)
-                    # os.system(command[:-2])
-                    # os._exit(0)
-            except Exception as e:
-                print(e)
-                # print("Command not recognised internally or by Linux shell.")
-                # print(command[:-2])
-        else:
+                else:               # else we are in the parent process.
+                    return          # continue as normal.
+
+            except:                 # system command call failed. return error and the command.
+                print("Command not recognised internally or by Linux shell:")
+                print(command[:-2])
+
+        else:       # command invoked without background execution.
             try:
                 os.system(command)
 
             except:
-                print("Command not recognised internally or by Linux shell.")
-
-    def do_testargs(self, args):
-        for arg in args.split():
-            print(arg)
-
-    def do_testbg(self, args):
-        subprocess.Popen("gedit", creationflags=subprocess.CREATE_NO_WINDOW)
+                print("Command not recognised internally or by Linux shell:")
+                print(command)
 
 
 # global variables for ease of access to ANSI escape sequences
