@@ -117,17 +117,18 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
             tokens = args.split()
             f = open(tokens[1], "w")
             for key in os.environ:
-                f.write(key + "\n")
+                f.write(key + ": " + os.environ[key] + "\n")
 
         elif ">> " in args:         # append redirection invoked.
             tokens = args.split()
             f = open(tokens[1], "a")
             for key in os.environ:
-                f.write(key + "\n")
+                f.write(key + ": " + os.environ[key] + "\n")
 
         else:                       # no redirection invoked.
             for l in os.environ:
-                print(l)
+                print(l+":", os.environ[l])
+
 
     def emptyline(self):    # method to avoid the shell re-entering the last command when no input is given.
         pass                # just a small quirk of the Cmd module that had to be dealt with
