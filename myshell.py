@@ -1,34 +1,37 @@
 from cmd import Cmd
 import os
-import subprocess
 import sys
+# Oisin Henry
+# 17312911
 
 
 class myPrompt(Cmd):                # main class for the prompt. inherits from cmd.Cmd
 
     def do_help(self, args):
 
+        if args and ">" not in args:    # case of help <command> for specific help.
+            # print(myPrompt.help_dir(self))
+            print(myPrompt.help_parser(self, args), end="")
+            return ""
+
         if args.startswith("> "):   # help invoked with overwrite redirection.
             tokens = args.split()
             f = open(tokens[1].strip(), "w")
-            readfile = open("readme", "r")
+            readfile = open(readmepath, "r")
             f.write(readfile.read())
 
         elif args.startswith(">>"):  # help invoked with append redirection.
             tokens = args.split()
             f = open(tokens[1].strip(), "a")
-            readfile = open("readme", "r")
+            readfile = open(readmepath, "r")
             f.write(readfile.read())
 
-        else:                        # help invoked without redirection.
-            os.system("more readme")
+        else:                        # help invoked without redirection. return user manual.
+            os.system("more " + readmepath)
 
     def do_quit(self, args):        # first few simple commands. each command needs an 'args' parameter
         print("Bye")                # even if it's not used, otherwise errors are thrown.
         return True
-
-    def help_quit(self):
-        print("Exit the application.")
 
     def do_echo(self, s):
 
@@ -45,16 +48,13 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
         else:               # echo invoked without redirection.
             print(s)
 
-    def help_echo(self):
-        print("Return a given string. Usage: echo <string>")
-
     def do_cd(self, d=""):
         if d != "":         # directory supplied as an argument.
             try:
                 os.chdir(d)
                 full_path = os.getcwd()
                 os.environ["PWD"] = os.getcwd()     # update PWD env variable
-                prompt.prompt = BOLD + BLUE + "~" + full_path + ENDC + ":" + BLUE + "~" + ENDC + "$ "
+                prompt.prompt = "shell=" + BOLD + BLUE + full_path + ENDC + "$ "
                 # this just updates the prompt prefix on screen.
                 # ALL CAPS variables are just global colour codes for terminal.
 
@@ -64,20 +64,12 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
         else:               # no arguments supplied. use current dir.
             print(os.getcwd())
 
-    def help_cd(self):
-        print("Change the current directory. If no arguments are supplied, print working directory.")
-        print("Usage: cd <directory>")
-
     def do_clr(self, args):
         sys.stderr.write("\x1b[2J\x1b[H")   # linux escape sequence to clear the terminal.
-
-    def help_clr(self):
-        print("Clears the terminal.")
 
     def do_dir(self, args):
         # logic is cumbersome here because of multiple cases. 4 possibilities between argument/no argument
         # and ">" or ">>".
-        # #TODO: make this live in another file/function?
         if " > " in args and len(args.split()) == 3:          # case of dir somedir > somefile.txt
             tokens = args.split(" > ")
             f = open(tokens[1].strip(), "w")
@@ -99,7 +91,7 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
             for key in files:
                 f.write(key + "\n")
 
-        elif args.startswith(">>"):       # case of dir >> somefile.txt
+        elif args.startswith(">>"):       # case of dir >> somefile.txt (i.e. current dir)
             tokens = args.split()
             f = open(tokens[1].strip(), "a")
             files = os.listdir(os.environ['PWD'])
@@ -111,18 +103,11 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
             for key in contents:
                 print(key)
 
-    def help_dir(self):
-        print("Lists the contents of a given directory. If no arguments are supplied, current directory is used.")
-        print("Usage: dir <directory>")
-
     def do_pause(self, args):
         try:
             input("Press Enter to continue...")     # rudimentary but functional pause.
-        except:
+        except:     # keyboard interrupts could break this without a try/except
             pass
-
-    def help_pause(self):
-        print("Pauses the shell and waits for user input.")
 
     def do_environ(self, args):
         # unfortunately, different logic needed for
@@ -144,11 +129,8 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
             for l in os.environ:
                 print(l)
 
-    def help_environ(self):
-        print("Lists all the environment variables.")
-
-    def emptyline(self):
-        pass
+    def emptyline(self):    # method to avoid the shell re-entering the last command when no input is given.
+        pass                # just a small quirk of the Cmd module that had to be dealt with
 
     def default(self, command):  # method called when command prefix not recognised (ie program invocation)
 
@@ -179,22 +161,36 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
                 print("Command not recognised internally or by Linux shell:")
                 print(command)
 
+    # this is called when "help <command>" is used for specific help with a command.
+    def help_parser(self, args):    # better way of implementing specific help because the Cmd way of writing
+        if args == "quit":          # a method for each one clashes with the regular "help" command.
+            return "Exit the application.\n"
+        elif args == "echo":
+            return "Return a given string. Usage: echo <string>\n"
+        elif args == "cd":
+            return "Change the current directory. If no arguments are supplied, print working directory.\nUsage: cd <directory>\n"
+        elif args == "clr":
+            return "Clears the terminal.\n"
+        elif args == "dir":
+            return "Lists the contents of a given directory. If no arguments are supplied, current directory is used.\nUsage: dir <directory>\n"
+        elif args == "pause":
+            return "Pauses the shell and waits for user input.\n"
+        elif args == "environ":
+            return "Lists all the environment variables.\n"
+
 
 # global variables for ease of access to ANSI escape sequences
 # for colour coding in the terminal
 HEADER = '\033[95m'
 BLUE = '\033[94m'
-GREEN = '\033[92m'
-WARNING = '\033[93m'
-FAIL = '\033[91m'
 ENDC = '\033[0m'
 BOLD = '\033[1m'
-UNDERLINE = '\033[4m'
+
 
 if __name__ == '__main__':      # main function where prompt is created and run
     prompt = myPrompt()
     full_path = os.getcwd()     # path string for start of prompt
-    # print(sys.argv)
+    readmepath = os.environ['PWD'] + "/readme"  # dynamic path for readme so "help" can be invoked even after changing dir
 
     if len(sys.argv) > 1:                   # here is the logic for command line invocation with batch file argument.
         with open(sys.argv[1]) as file:
@@ -202,7 +198,7 @@ if __name__ == '__main__':      # main function where prompt is created and run
                 prompt.onecmd(line)
 
     else:                                   # else just prompt user for input.
-        prompt.prompt = BOLD + BLUE + "~" + full_path + ENDC + ":" + BLUE + "~myshell" + ENDC + "$ "
+        prompt.prompt = "shell=" + BOLD + BLUE + full_path + ENDC + "$ "    # prompt is colour coded to differentiate it from the regular linux shell.
         prompt.cmdloop(HEADER + "Starting prompt. Type '?' or 'help' for commands. Type 'help <command>' for help with a specific command.")
 
 

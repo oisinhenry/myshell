@@ -11,11 +11,8 @@
 
 Welcome to oisinhenry/myshell
 A simple shell written in python.
-oisin henry
-student no: 17312911
 
-
---- COMMANDS ---
+COMMANDS
 The shell supports the following internal commands:
 
   cd <directory> - change the current directory to <directory>. If no arguments are supplied, return the current directory.
@@ -35,42 +32,31 @@ The shell supports the following internal commands:
   quit - exits the shell.
 
 
+PROGRAM INVOCATION
+All other command line input is interpreted as program invocation. Programs and external UNIX commands will be executed by the shell.
 
---- PROGRAM INVOCATION ---
-All other command line input is interpreted as program invocation. Programs and Unix commands not recognised internally will be executed by the shell.
-
-
-
---- SHELL ARGUMENTS ---
+SHELL ARGUMENTS
 If the shell is invoked with a command line argument, it will assume the argument is a batch file containing a list of commands which the shell will attempt to execute.
 When end of file is reached, the shell will exit.
 If the shell is invoked without command line arguments it will solicit input from the user as normal.
 
-
-
---- OUTPUT REDIRECTION ---
-The shell supports output redirection using the command suffixes ">" and ">>" followed by a filename.
-This means instead of the output appearing on the shell interface, it is placed in a file, the name of which should follow the redirection symbol.
-
+INPUT/OUTPUT REDIRECTION
+The shell supports I/O redirection using ">" and ">>".
 Programs and external UNIX commands can be invoked using this syntax to output to text files.
 
-  ">" - Creates a new file or overwrites the file if it exists.
+  ">" - Creates a new file or overwrites if it exists.
 
-  ">>" - Creates a new file or appends to the file if it exists.
+  ">>" - Creates a new file or appends if it exists.
 
-  Example usage:
+  Example:
   echo hello world > hello.txt
-
   - Creates a new file entitled "hello.txt" whose contents are "hello world".
   Use the ">>" syntax to append output to existing files.
 
+BACKGROUND EXECUTION
+The shell supports background execution of programs and external UNIX commands. Suffix any command with the ampersand ("&") to denote background execution.
 
-
---- BACKGROUND EXECUTION ---
-The shell supports background execution of programs and external UNIX commands. Suffix any command with the ampersand ("&") to denote background execution. Other commands may be executed while a program is being executed in the background.
-
-  Example usage with an external command:
-
+  Usage:
   ls -l &
   
 
