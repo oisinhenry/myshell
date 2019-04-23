@@ -70,38 +70,41 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
     def do_dir(self, args):
         # logic is cumbersome here because of multiple cases. 4 possibilities between argument/no argument
         # and ">" or ">>".
-        if " > " in args and len(args.split()) == 3:          # case of dir somedir > somefile.txt
-            tokens = args.split(" > ")
-            f = open(tokens[1].strip(), "w")
-            files = os.listdir(os.environ['PWD'] + "/" + tokens[0])
-            for key in files:
-                f.write(key + "\n")
+        try:
+            if " > " in args and len(args.split()) == 3:          # case of dir somedir > somefile.txt
+                tokens = args.split(" > ")
+                f = open(tokens[1].strip(), "w")
+                files = os.listdir(os.environ['PWD'] + "/" + tokens[0])
+                for key in files:
+                    f.write(key + "\n")
 
-        elif " >> " in args and len(args.split()) == 3:       # case of dir somedir >> somefile.txt
-            tokens = args.split(" >> ")
-            f = open(tokens[1].strip(), "a")
-            files = os.listdir(os.environ['PWD'] + "/" + tokens[0])
-            for key in files:
-                f.write(key + "\n")
+            elif " >> " in args and len(args.split()) == 3:       # case of dir somedir >> somefile.txt
+                tokens = args.split(" >> ")
+                f = open(tokens[1].strip(), "a")
+                files = os.listdir(os.environ['PWD'] + "/" + tokens[0])
+                for key in files:
+                    f.write(key + "\n")
 
-        elif args.startswith("> "):        # case of dir > somefile.txt (i.e. current dir)
-            tokens = args.split()
-            f = open(tokens[1].strip(), "w")
-            files = os.listdir(os.environ['PWD'])
-            for key in files:
-                f.write(key + "\n")
+            elif args.startswith("> "):        # case of dir > somefile.txt (i.e. current dir)
+                tokens = args.split()
+                f = open(tokens[1].strip(), "w")
+                files = os.listdir(os.environ['PWD'])
+                for key in files:
+                    f.write(key + "\n")
 
-        elif args.startswith(">>"):       # case of dir >> somefile.txt (i.e. current dir)
-            tokens = args.split()
-            f = open(tokens[1].strip(), "a")
-            files = os.listdir(os.environ['PWD'])
-            for key in files:
-                f.write(key + "\n")
+            elif args.startswith(">>"):       # case of dir >> somefile.txt (i.e. current dir)
+                tokens = args.split()
+                f = open(tokens[1].strip(), "a")
+                files = os.listdir(os.environ['PWD'])
+                for key in files:
+                    f.write(key + "\n")
 
-        else:
-            contents = os.listdir(os.environ['PWD'] + "/" + args)
-            for key in contents:
-                print(key)
+            else:
+                contents = os.listdir(os.environ['PWD'] + "/" + args)
+                for key in contents:
+                    print(key)
+        except:
+            print("Directory not found.")
 
     def do_pause(self, args):
         try:
@@ -113,13 +116,13 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
         # unfortunately, different logic needed for
         # each internal command when redirection is invoked.
 
-        if "> " in args:            # overwrite redirection invoked.
+        if args.startswith("> "):            # overwrite redirection invoked.
             tokens = args.split()
             f = open(tokens[1], "w")
             for key in os.environ:
                 f.write(key + ": " + os.environ[key] + "\n")
 
-        elif ">> " in args:         # append redirection invoked.
+        elif args.startswith(">>"):         # append redirection invoked.
             tokens = args.split()
             f = open(tokens[1], "a")
             for key in os.environ:
@@ -164,7 +167,7 @@ class myPrompt(Cmd):                # main class for the prompt. inherits from c
 
     # this is called when "help <command>" is used for specific help with a command.
     def help_parser(self, args):    # better way of implementing specific help because the Cmd way of writing
-        if args == "quit":          # a method for each one clashes with the regular "help" command.
+        if args == "quit":          # a method for each one clashes with the regular "help" command override.
             return "Exit the application.\n"
         elif args == "echo":
             return "Return a given string. Usage: echo <string>\n"

@@ -15,16 +15,23 @@ oisin henry
 student no: 17312911
 
 
+--- BASIC OPERATION ---
+
+The shell consists of a prompt followed by an input line where the user may enter commands. The prompt contains the path of the current working directory. Commands may be followed by one or more arguments, which should each be delimited by a single space. 
+
+Simply press "Enter" to execute a command after composing it, upon which the shell will execute the command and generally return to the user prompt immediately.
+
+
 --- COMMANDS ---
 The shell supports the following internal commands:
 
   cd <directory> - change the current directory to <directory>. If no arguments are supplied, return the current directory.
 
-  clr - clear the screen.
+  clr - clears the terminal window.
 
-  dir <directory> - list the contents of directory <directory>.
+  dir <directory> - list the contents of directory <directory>. If no arguments are supplied, list the contents of the current directory.
 
-  environ - list all the environment variables.
+  environ - list all the environment variables and their current values.
 
   echo <comment> - display <comment> on the display followed by a new line.
 
@@ -36,13 +43,17 @@ The shell supports the following internal commands:
 
 
 
---- PROGRAM INVOCATION ---
-All other command line input is interpreted as program invocation. Programs and Unix commands not recognised internally will be executed by the shell.
+--- PROGRAM INVOCATION AND EXTERNAL COMMANDS ---
+All other command line input is interpreted as program invocation. The shell will detect when an external command is entered and attempt to execute it. This means the shell should fully support all native Unix commands normally available on the user's machine. External commands can also be executed in the background. (See: Background Execution section)
 
 
-
---- SHELL ARGUMENTS ---
+--- SHELL INVOCATION ARGUMENTS ---
 If the shell is invoked with a command line argument, it will assume the argument is a batch file containing a list of commands which the shell will attempt to execute.
+
+  Example:
+
+  python3 myshell.py batchfile.txt
+
 When end of file is reached, the shell will exit.
 If the shell is invoked without command line arguments it will solicit input from the user as normal.
 
@@ -50,15 +61,16 @@ If the shell is invoked without command line arguments it will solicit input fro
 
 --- OUTPUT REDIRECTION ---
 The shell supports output redirection using the command suffixes ">" and ">>" followed by a filename.
-This means instead of the output appearing on the shell interface, it is placed in a file, the name of which should follow the redirection symbol.
+This means instead of the output appearing on the shell interface, it is placed in a file, the name of which should follow the redirection symbol as an extra argument.
 
-Programs and external UNIX commands can be invoked using this syntax to output to text files.
+Programs, internal and external commands can be invoked using this syntax to output to text files.
 
   ">" - Creates a new file or overwrites the file if it exists.
 
   ">>" - Creates a new file or appends to the file if it exists.
 
   Example usage:
+
   echo hello world > hello.txt
 
   - Creates a new file entitled "hello.txt" whose contents are "hello world".
@@ -67,10 +79,12 @@ Programs and external UNIX commands can be invoked using this syntax to output t
 
 
 --- BACKGROUND EXECUTION ---
-The shell supports background execution of programs and external UNIX commands. Suffix any command with the ampersand ("&") to denote background execution. Other commands may be executed while a program is being executed in the background.
+The shell supports background execution of programs, internal and also external Unix commands. Suffix any command with the ampersand ("&") to denote background execution. Other commands may be executed while a program is being executed in the background.
 
   Example usage with an external command:
 
-  ls -l &
+  python3 someprogram.py &
+
+  - this will execute someprogram.py in the background as a child process of the shell. This means while it is being executed, the shell can still process new commands from the user.
   
 
